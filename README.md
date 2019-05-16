@@ -1,7 +1,5 @@
 # Docker
 
-Docker
--------
 Docker Client -> Docker Server or Docker Deamon
 
 docker run hello-world
