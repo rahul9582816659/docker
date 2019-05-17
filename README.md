@@ -347,6 +347,21 @@ but we have node_modules inside container
 
 -v /app/node_modules - this will tell that use node_modules which is inside the conatiner
 
+shorthand above using docker compose: docker-compose.yml file
+
+version: '3'
+services:
+  web:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - .:/app
+
 
 
 
