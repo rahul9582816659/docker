@@ -455,33 +455,35 @@ kubectl : used to manage containers inside the nodes
 
 step 1 : upload your images to docker hub
 
-step 2 : creating configuration file for client 
+step 2 : creating configuration file for web web-pod.yml 
 apiVersion: v1
 kind: Pod
-metadata: 
-  name: client-pod
+metadata:
+  name: web-pod
   labels:
-   component: web
+    component: web
 spec:
   containers:
     - name: client
-      image: thecrazzyrahul/multi-client
+      image: thecrazzyrahul/web
       ports:
-       - containerPort: 3000
+        - containerPort: 8080
 
-step 3 : client-node-port.yml
+
+step 3 : web-node-port.yml
 apiVersion: v1
 kind: Service
-metadata: 
-  name: client-node-pod
+metadata:
+  name: web-node-pod
 spec:
   type: NodePort
   ports:
-    - port: 3050
-      targetPort: 3000
-      nodePort: 31515
+    - port: 8081
+      targetPort: 8080
   selector:
-   component: web
+    component: web
+
+
 
 config file ----> used to create object ----> ( type of objects )  statefulset, replica controller, pod, service
 pod is used to run a container
@@ -500,3 +502,18 @@ there are 4 sub types : ClusterIP, NodePort, LoadBalancer, Ingress
 NodePort : expose container to outside world
 
 request---> kube proxy ---> ServiceNode ---> Pod
+
+- port: 3050 : other pod inside node can communicate to this pod using port
+  targetPort: 3000 : port inside the pod which we want to open for traffic, this will send request to client-node on port 3000 & client-node has containerPort:3000 which listens
+  nodePort: 31515 : used to dev/testing, it range from (30000 - 32767) we will use this localhost:31515 in browser to access client-pod, so nodePort is exposed to outside world,
+                    if we dont assign any, random port will be assigned. this is for dev/testing use not for prod use.
+
+kubectl apply -f filename : apply(chnage the current configuration of our cluster) -f (we want to specify a file that has the config changes) filename(path to the file with the config)
+
+kubectl apply -f web-pod.yaml
+kubectl apply -f web-node-port.yaml
+
+kubectl get pods
+kubectl get services
+
+localhost:4200 : we can access the application
