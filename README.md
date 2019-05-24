@@ -92,6 +92,10 @@ Note : -a will attach the output to the terminal
 
 3. Remove docker images:
 docker system prune
+docker container prune
+docker image prune
+docker volume prune
+docker network prune
 
 WARNING! This will remove:
         - all stopped containers
@@ -168,7 +172,7 @@ execute chrome : command to run on startup
 docker build -t your-docker-id/repo OR projectname : version  
 docker build -t thecrazzyrahul/redis-server:latest .
 
-Note: docker build . always look for Doxkerfile, if Dockerfile is with some extension like Dockerfile.dev
+Note: docker build . always look for Dockerfile, if Dockerfile is with some extension like Dockerfile.dev
       than we can run docker build -f Dockerfile.dev . : -f to give file name
 
 8. Copy Files To Container:
@@ -362,9 +366,137 @@ services:
       - /app/node_modules
       - .:/app
 
+Multi Step Docker Build:
+------------------------
+Build Phase:
+  1. use node:alpine
+  2. copy package.json file
+  3. install dependencies
+  4. run 'npm run build'
+Run Phase:
+  1. use nginx
+  2. copy over the result of npm run build
+  3. start nginx
+
+Dockerfile: for Prod Build and Run Phase
+
+FROM node:alpine as builder
+WORKDIR '/app'
+COPY package.json .
+RUN npm install
+COPY . .
+RUN npm run build
+
+FROM nginx
+COPY --from=builder /app/build /usr/share/nginx/html
+
+Services Overview:
+------------------
+Github
+Travis CI
+AWS
+
+Github:
+------
+create repo in github
+git init : initialize local work with
+git add.
+git commit -m "initial commit"
+git remote add origin git-url : point your local git to remote repo that we just created
+git push origin master : push your code to github
+
+Travis CI:
+----------
+https://travis-ci.org/ : login using github account
+under : Legacy Services Integration : check that repo you want to control by travis
+travis does work based on .travis.yml file
+
+.travis.yml file:
+1. tell travis we need a copy of docker running 
+2. build our image using Dockerfile.dev
+3. tell travis our to run our test suite
+4. tell travis how to deploy our code to AWS
 
 
+Setting Environment Varibale:
+-----------------------------
+version: '3'
+services:
+  web:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - .:/app
+    environment:
+      - key=value : Sets the variable in the container
+      - key : Sets the variable in the container, value is taken from your computer
 
+Kubernetes:
+-----------
+kubernetes cluster = master + nodes
+node can be virtual machine or physical computer, used to run containers
+master will control these nodes
+we reach out to cluster using master
 
+request --> load balancer --> cluster (nodes + master)
 
+minekube : use to run kubernetes cluster inside vm & managing the vm
+kubectl : used to manage containers inside the nodes
 
+    docker-compose.yml file :                                       kubernetes :
+1. each entry can optionally get docker-compose to build an image : kubernetes expects all images to be already built : make sure our images are hosted on docker hub
+2. each entry represent a container we want to create : one config file per object we want to create : make one config file to create our container
+3. each entry define the networking requirements (ports) : we have to manually set up all networking : make one config file to setup networking
+
+step 1 : upload your images to docker hub
+
+step 2 : creating configuration file for client 
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: client-pod
+  labels:
+   component: web
+spec:
+  containers:
+    - name: client
+      image: thecrazzyrahul/multi-client
+      ports:
+       - containerPort: 3000
+
+step 3 : client-node-port.yml
+apiVersion: v1
+kind: Service
+metadata: 
+  name: client-node-pod
+spec:
+  type: NodePort
+  ports:
+    - port: 3050
+      targetPort: 3000
+      nodePort: 31515
+  selector:
+   component: web
+
+config file ----> used to create object ----> ( type of objects )  statefulset, replica controller, pod, service
+pod is used to run a container
+service is used to setup a networking
+
+apiVersion: v1 will provide us set of predefined objects
+
+Pods : grouping of similar contianers, we can run 1 or more containers inside it
+When we start minikube we get node --> inside node we have pod.
+
+node ----> pod ---> postgress + backup manager 2 containers inside 1 pod
+so conatiners which has very tight relationship will be deployed under same pod
+
+Services : is used to setup a networking
+there are 4 sub types : ClusterIP, NodePort, LoadBalancer, Ingress
+NodePort : expose container to outside world
+
+request---> kube proxy ---> ServiceNode ---> Pod
