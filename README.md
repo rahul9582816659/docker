@@ -1,8 +1,15 @@
 # Docker
 
-Docker Client -> Docker Server or Docker Deamon
+docker --version
 
+docker-compose version
+
+Docker Client will connect to ----------> Docker Server or Docker Deamon
+
+First Docker Command :
+----------------------
 docker run hello-world
+
 1. The Docker client contacted the Docker daemon.
 
 2. The Docker daemon pulled the "hello-world" image from the Docker Hub, 
@@ -54,7 +61,7 @@ ex: docker run hello-world
 docker run image-name command: docker (refrence to docker client) run (try to create & run container) image-name(name of image to use for this conatiner) command (override default command)
 ex: docker run busybox echo Rahul Choudhary
 
-2. Listing ALl Running Container:
+2. Listing ALL Running Container:
 
 docker ps : docker (refrence to docker client) ps (listing all running conatiners)
 ex: docker ps
