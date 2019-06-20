@@ -455,22 +455,22 @@ kubectl : used to manage containers inside the nodes
 
 step 1 : upload your images to docker hub
 
-step 2 : creating configuration file for web web-pod.yml 
+step 2 : creating configuration file for web web-pod.yaml
 apiVersion: v1
 kind: Pod
 metadata:
   name: web-pod
   labels:
-    component: web
+    component: web // this can be anything like a1:web or b1:web-pod
 spec:
   containers:
     - name: client
       image: thecrazzyrahul/web
       ports:
-        - containerPort: 8080
+        - containerPort: 3000
 
 
-step 3 : web-node-port.yml
+step 3 : web-node-port.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -478,12 +478,19 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8081
-      targetPort: 8080
+    - port: 3050
+      targetPort: 3000
   selector:
     component: web
 
-
+Note: All the trafic to 
+ports:
+    - port: 3050
+      targetPort: 3000
+above ports in web-node-port will be forwarded to 
+will check selector having component:web, it will go to kubernetes cluster and look forselector having component:web
+so we find this in web-pod which is having label as component:web
+so all the traffic will be routed to web-pod
 
 config file ----> used to create object ----> ( type of objects )  statefulset, replica controller, pod, service
 pod is used to run a container
@@ -516,4 +523,14 @@ kubectl apply -f web-node-port.yaml
 kubectl get pods
 kubectl get services
 
+kubectl delete pods <pod>
+kubectl delete -f <config-file> : kubectl will look for kind:Pod and name client-pod
+kubectl get all
+kubectl delete service/<name>
+
+minikube ip : check ip use ip in place of localhost
 localhost:4200 : we can access the application
+
+Note: Make sure the deployed image in dockerhub and ports in kubernetes config files are in sync.
+
+config files ---> master ---> nodes
