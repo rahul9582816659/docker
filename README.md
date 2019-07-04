@@ -541,3 +541,59 @@ localhost:4200 : we can access the application
 Note: Make sure the deployed image in dockerhub and ports in kubernetes config files are in sync.
 
 config files ---> master ---> nodes
+
+Ubuntu MicrosK8:
+----------------
+microk8s.start
+microk8s.status
+microk8s.enable dns dashboard
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
